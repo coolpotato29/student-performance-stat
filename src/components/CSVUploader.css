@@ -1,0 +1,164 @@
+/* CSVUploader.css */
+.uploader-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.drop-zone {
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-xl);
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  padding: 52px 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.drop-zone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent-1-soft), transparent 60%, var(--accent-2-soft));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.drop-zone:hover::before,
+.drop-zone--active::before { opacity: 1; }
+
+.drop-zone--active {
+  border-color: var(--accent-1);
+  border-style: solid;
+  box-shadow: 0 0 0 4px var(--accent-1-soft), var(--shadow-lg);
+  transform: scale(1.01);
+}
+/* Compact variant (used inside admin modal) */
+.uploader-shell--compact { max-width: 100%; margin: 0; gap: 0; }
+.drop-zone--compact { padding: 22px 20px; border-radius: var(--radius-md); }
+.drop-zone--compact .dz-icon-wrap { width: 52px; height: 52px; border-radius: 14px; }
+.drop-zone--compact .dz-title { font-size: 0.88rem; }
+.drop-zone--compact .dz-sub  { font-size: 0.78rem; }
+
+.drop-zone--error {
+  border-color: #bc4749;
+  background: rgba(188,71,73,0.05);
+}
+.drop-zone--done {
+  border-color: var(--accent-1);
+  border-style: solid;
+  background: var(--accent-1-soft);
+}
+
+.dz-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.dz-icon-wrap {
+  width: 80px; height: 80px;
+  border-radius: 22px;
+  background: var(--accent-1-soft);
+  display: grid; place-items: center;
+  margin-bottom: 4px;
+  transition: all 0.25s ease;
+  animation: float 3s ease-in-out infinite;
+}
+.dz-icon-wrap--active {
+  background: var(--accent-1);
+  animation: none;
+  transform: scale(1.1);
+}
+.dz-icon { color: var(--accent-1); transition: color 0.25s; }
+.dz-icon-wrap--active .dz-icon { color: white; }
+
+.dz-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+}
+.dz-title em { font-style: normal; color: var(--accent-1); }
+
+.dz-sub {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+.dz-browse {
+  color: var(--accent-1);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.dz-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  background: var(--bg-surface-2);
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+}
+
+/* Spinner */
+.dz-spinner {
+  width: 44px; height: 44px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent-1);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-bottom: 8px;
+}
+
+/* Done / Error icons */
+.dz-success-icon { color: #10b981; margin-bottom: 4px; }
+.dz-error-icon   { color: #f43f5e; margin-bottom: 4px; }
+.done-title  { color: #10b981; }
+.error-title { color: #f43f5e; }
+.dz-error-msg { color: #f43f5e; font-size: 0.85rem; max-width: 320px; }
+
+.dz-reset-btn {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  padding: 7px 16px;
+}
+
+/* Format hint card */
+.csv-format-hint {
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+}
+.hint-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.hint-pre {
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  color: var(--accent-1);
+  background: var(--bg-surface-2);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  line-height: 1.7;
+  overflow-x: auto;
+}

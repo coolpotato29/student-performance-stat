@@ -1,0 +1,13 @@
+/* RadarOverview.css */
+.radar-wrap {
+  padding: 24px 20px 16px;
+}
+
+.radar-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--bg-surface-2);
+  padding: 4px 10px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+}
