@@ -110,13 +110,13 @@ export function aggregateCourses(rows, fields) {
  * Relative grading scheme based on standard deviation bands from the mean.
  *
  * Thresholds (μ = mean, σ = std dev):
- *   O   (Outstanding)  : score ≥ μ + 1.5σ
- *   A+  (Excellent)    : μ + 1.0σ ≤ score < μ + 1.5σ
- *   A   (Very Good)    : μ + 0.5σ ≤ score < μ + 1.0σ
- *   B+  (Good)         : μ        ≤ score < μ + 0.5σ
- *   B   (Average)      : μ - 0.5σ ≤ score < μ
- *   C   (Below Average): μ - 1.0σ ≤ score < μ - 0.5σ
- *   F   (Fail)         : score    < μ - 1.0σ
+ *   A   (Excellent)     : score ≥ μ + 1.5σ
+ *   A-  (Very Good)     : μ + 1.0σ ≤ score < μ + 1.5σ
+ *   B   (Good)          : μ + 0.5σ ≤ score < μ + 1.0σ
+ *   B-  (Above Average) : μ        ≤ score < μ + 0.5σ
+ *   C   (Average)       : μ - 0.5σ ≤ score < μ
+ *   C-  (Below Average) : μ - 1.0σ ≤ score < μ - 0.5σ
+ *   D   (Poor)          : score    < μ - 1.0σ
  *
  * @param {number[]} scores
  * @returns {{ grade: string, label: string, count: number, cutoff: string, color: string }[]}
@@ -130,13 +130,13 @@ export function gradeStudents(scores) {
   const sd = Math.sqrt(variance);
 
   const bands = [
-    { grade: 'O',  label: 'Outstanding',   cutoffVal: mean + 1.5 * sd, color: '#054a29' },
-    { grade: 'A+', label: 'Excellent',      cutoffVal: mean + 1.0 * sd, color: '#137547' },
-    { grade: 'A',  label: 'Very Good',      cutoffVal: mean + 0.5 * sd, color: '#2a9134' },
-    { grade: 'B+', label: 'Good',           cutoffVal: mean,            color: '#3fa34d' },
-    { grade: 'B',  label: 'Average',        cutoffVal: mean - 0.5 * sd, color: '#5bba6f' },
-    { grade: 'C',  label: 'Below Average',  cutoffVal: mean - 1.0 * sd, color: '#85c99a' },
-    { grade: 'F',  label: 'Fail',           cutoffVal: -Infinity,       color: '#bc4749' },
+    { grade: 'A',  label: 'Excellent',      cutoffVal: mean + 1.5 * sd, color: '#054a29' },
+    { grade: 'A-', label: 'Very Good',       cutoffVal: mean + 1.0 * sd, color: '#137547' },
+    { grade: 'B',  label: 'Good',            cutoffVal: mean + 0.5 * sd, color: '#2a9134' },
+    { grade: 'B-', label: 'Above Average',   cutoffVal: mean,            color: '#3fa34d' },
+    { grade: 'C',  label: 'Average',         cutoffVal: mean - 0.5 * sd, color: '#5bba6f' },
+    { grade: 'C-', label: 'Below Average',   cutoffVal: mean - 1.0 * sd, color: '#85c99a' },
+    { grade: 'D',  label: 'Poor',            cutoffVal: -Infinity,       color: '#bc4749' },
   ];
 
   const counts = Object.fromEntries(bands.map(b => [b.grade, 0]));
