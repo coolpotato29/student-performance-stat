@@ -1,56 +1,80 @@
 import { useState, useEffect } from 'react';
-import { BarChart2, ChevronRight, Search, X, Database } from 'lucide-react';
-import StatCard from './components/StatCard';
+import { BarChart2, ChevronRight, Search, X, Loader2 } from 'lucide-react';
+import Papa from 'papaparse';
 import SubjectDetail from './components/SubjectDetail';
 import AdminPanel from './components/AdminPanel';
 import { aggregateCourses } from './utils/statistics';
 import './App.css';
 
-const LS_KEY_DATA     = 'grademetrics_courseData';
-const LS_KEY_FILENAME = 'grademetrics_fileName';
-
 export default function App() {
-  const [courseData,      setCourseData]      = useState(null);
-  const [fileName,        setFileName]        = useState('');
-  const [selectedCourse,  setSelectedCourse]  = useState(null);
-  const [search,          setSearch]          = useState('');
+  const [courseData,     setCourseData]     = useState(null);
+  const [fileName,       setFileName]       = useState('');
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [search,         setSearch]         = useState('');
+  const [loading,        setLoading]        = useState(true);
 
-  /* ── Load persisted data on mount ── */
+  /* ── Auto-load bundled CSV on mount ── */
   useEffect(() => {
-    try {
-      const saved     = localStorage.getItem(LS_KEY_DATA);
-      const savedName = localStorage.getItem(LS_KEY_FILENAME);
-      if (saved) {
-        setCourseData(JSON.parse(saved));
-        setFileName(savedName || 'Loaded from storage');
-      }
-    } catch {
-      // corrupted storage — ignore
-    }
+    const csvUrl = `${import.meta.env.BASE_URL}cs_students.csv`;
+    fetch(csvUrl)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.text();
+      })
+      .then((text) => {
+        Papa.parse(text, {
+          header: true,
+          skipEmptyLines: true,
+          complete: ({ data, meta }) => {
+            const fields = (meta.fields || []).filter((f) =>
+              data.some((row) => !isNaN(parseFloat(row[f])) && row[f] !== '')
+            );
+            if (fields.length > 0) {
+              setCourseData(aggregateCourses(data, fields));
+              setFileName('cs_students.csv');
+            }
+            setLoading(false);
+          },
+          error: () => setLoading(false),
+        });
+      })
+      .catch(() => setLoading(false));
   }, []);
 
-  /* ── Called by AdminPanel after CSV upload ── */
+  /* ── Admin override: upload a different CSV ── */
   function handleDataLoaded(rows, fields, name) {
-    const aggregated = aggregateCourses(rows, fields);
-    setCourseData(aggregated);
+    setCourseData(aggregateCourses(rows, fields));
     setFileName(name);
-    // Persist so regular users see it without uploading
-    try {
-      localStorage.setItem(LS_KEY_DATA,     JSON.stringify(aggregated));
-      localStorage.setItem(LS_KEY_FILENAME, name);
-    } catch {
-      // storage full — skip
-    }
   }
 
-  /* ── Called by AdminPanel "Clear Data" ── */
   function handleClear() {
+    // Reset to bundled CSV
+    setLoading(true);
     setCourseData(null);
     setFileName('');
     setSelectedCourse(null);
     setSearch('');
-    localStorage.removeItem(LS_KEY_DATA);
-    localStorage.removeItem(LS_KEY_FILENAME);
+    const csvUrl = `${import.meta.env.BASE_URL}cs_students.csv`;
+    fetch(csvUrl)
+      .then((r) => r.text())
+      .then((text) => {
+        Papa.parse(text, {
+          header: true,
+          skipEmptyLines: true,
+          complete: ({ data, meta }) => {
+            const fields = (meta.fields || []).filter((f) =>
+              data.some((row) => !isNaN(parseFloat(row[f])) && row[f] !== '')
+            );
+            if (fields.length > 0) {
+              setCourseData(aggregateCourses(data, fields));
+              setFileName('cs_students.csv');
+            }
+            setLoading(false);
+          },
+          error: () => setLoading(false),
+        });
+      })
+      .catch(() => setLoading(false));
   }
 
   const filteredCourses = courseData
@@ -71,23 +95,25 @@ export default function App() {
       </header>
 
       {/* ── Main content ── */}
-      {!courseData ? (
-        /* No data yet — friendly waiting state */
+      {loading ? (
         <section className="hero-section fade-up">
           <div className="no-data-state">
-            <div className="no-data-icon-wrap">
-              <Database size={48} />
+            <div className="no-data-icon-wrap" style={{ animation: 'spin 1.2s linear infinite' }}>
+              <Loader2 size={48} />
             </div>
+            <h1 className="no-data-title">Loading Data…</h1>
+            <p className="no-data-sub">Fetching course statistics, hang tight.</p>
+          </div>
+        </section>
+      ) : !courseData ? (
+        <section className="hero-section fade-up">
+          <div className="no-data-state">
             <h1 className="no-data-title">No Data Available</h1>
-            <p className="no-data-sub">
-              The admin hasn't uploaded any course data yet.<br />
-              Check back later or contact your administrator.
-            </p>
+            <p className="no-data-sub">Could not load course data. Contact your administrator.</p>
           </div>
         </section>
       ) : (
         <section className="dashboard fade-in">
-          {/* Per-course tiles */}
           <div className="per-course-section">
             <div className="tiles-toolbar">
               <h3 className="sub-heading">Per-Course Breakdown</h3>
